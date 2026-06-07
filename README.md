@@ -22,14 +22,14 @@ Different AI terminals expect skills in different locations. Choose the installa
 Codex CLI expects global skills in the `~/.codex/skills/` directory.
 ```bash
 mkdir -p ~/.codex/skills
-git clone https://github.com/your-name/code-indexer.git ~/.codex/skills/code-indexer
+git clone https://github.com/ValentinGlaserArag/code-indexer.git ~/.codex/skills/code-indexer
 ```
 
 ### 2. Claude Code / OhMyClaudeCode (OMC)
 The OMC ecosystem uses global skills in the `~/.claude/` directory.
 ```bash
 mkdir -p ~/.claude/skills/omc-learned
-git clone https://github.com/your-name/code-indexer.git ~/.claude/skills/omc-learned/code-indexer
+git clone https://github.com/ValentinGlaserArag/code-indexer.git ~/.claude/skills/omc-learned/code-indexer
 ```
 
 ### 3. OpenCode
@@ -37,7 +37,7 @@ OpenCode supports global or project-specific skills.
 **Project-specific (Current project only):**
 ```bash
 mkdir -p .opencode/skills
-git clone https://github.com/your-name/code-indexer.git .opencode/skills/code-indexer
+git clone https://github.com/ValentinGlaserArag/code-indexer.git .opencode/skills/code-indexer
 ```
 **Global (For all projects):**
 Clone it to `~/.config/opencode/skills/` (Linux/Mac) or your Windows AppData directory depending on your OS.
@@ -49,15 +49,22 @@ These tools do not use traditional "skill folders" but rely on system prompts wi
 3. Adjust the `<path-to-script>` placeholder in the text to point to `.scripts/code-indexer/`.
 
 ### 5. GitHub CLI (`gh skill`)
-The GitHub CLI (v2.90.0+) has native support for installing agent skills.
+The GitHub CLI (v2.90.0+) has native support for installing agent skills. You can install it globally for a specific agent:
 ```bash
-gh skill install <your-github-username>/code-indexer
+# For Codex CLI
+gh skill install ValentinGlaserArag/code-indexer --agent codex --scope user
+
+# For Claude Code
+gh skill install ValentinGlaserArag/code-indexer --agent claude-code --scope user
+
+# For GitHub Copilot
+gh skill install ValentinGlaserArag/code-indexer --agent copilot --scope user
 ```
 
 ### 6. Vercel Labs (`npx skills` / skills.sh)
 You can install and register this skill using the Vercel Labs `skills.sh` CLI:
 ```bash
-npx skills add <your-github-username>/code-indexer
+npx skills add ValentinGlaserArag/code-indexer
 ```
 
 ---
