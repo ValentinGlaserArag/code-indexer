@@ -96,5 +96,5 @@ python skills/code-indexer/index_java_methods.py --pkg xray.client --class Clien
 
 ## ⚙️ Wie es funktioniert (Caching)
 Um bei großen Projekten blitzschnell zu sein, parsen die Skripte nur geänderte Dateien neu. Der Index wird automatisch in deinem Projekt-Root im Ordner `.cache/` (z.B. `.cache/list_python_methods_cache.json`) abgelegt. Es ist empfehlenswert, `.cache/` in deine `.gitignore` aufzunehmen.
-## ?? Detaillierte Dokumentation
-F�r einen tiefen Einblick in die Architektur, Caching-Mechanismen und erweiterte CLI-Kombinationen, siehe [docs/DOKUMENTATION.md](docs/DOKUMENTATION.md).
+## 📚 Detaillierte Dokumentation
+Für einen tiefen Einblick in die Architektur, Caching-Mechanismen und erweiterte CLI-Kombinationen, siehe [docs/DOKUMENTATION_DE.md](docs/DOKUMENTATION_DE.md).
