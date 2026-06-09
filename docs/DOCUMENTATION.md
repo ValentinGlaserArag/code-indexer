@@ -93,3 +93,58 @@ Find all setup functions within modules that contain the word "test":
 ```bash
 python skills/code-indexer/index_python_methods.py --pkg *test* --func setup* .
 ```
+
+---
+
+## 5. Supported Queries & Capabilities
+
+To provide a better understanding of the `code_indexer` capabilities, here is a list of common queries and an evaluation of whether the tool can directly answer them. The indexer strictly focuses on **Java** and **Python**.
+
+### ✅ Fully Supported (Directly answerable)
+These queries can be easily answered using the built-in name and structure filters:
+
+* **"Show me all classes that contain 'user' in their name"**
+* **"What methods does the User class have?"**
+* **"List all Java packages and Python modules with their classes"**
+* **"Find Java and Python classes and their methods"**
+* **"Find all Python magic methods (operator overloads) in the Matrix class"**
+* **"List all Java packages / Python modules and their contained classes"**
+
+### ⚠️ Partially Supported (Limited or workaround needed)
+The tool reaches its functional limits here due to a lack of semantic understanding or complex type graphs:
+
+* **"Find functions related to database operations"**
+  *(No semantic understanding. You can only search for keywords within the method name, e.g., `--func db`.)*
+* **"Show me functions that handle authentication"**
+  *(Same reason as above. Only string-based search for e.g. `--func auth` is possible.)*
+* **"Show me Java interfaces and their implementations"**
+  *(Interfaces and classes are indexed, but the tool does not automatically link classes to the interfaces they implement. The inheritance graph is missing.)*
+* **"Show me Java generic methods with their type bounds"**
+  *(Method signatures are extracted, but complex `<T>` generics and type-bounds are not specifically parsed for filtering.)*
+
+### ❌ Not Supported (Cannot be answered)
+These queries are impossible to answer because they require modifying code (the tool is read-only) or analyzing the body of a method (the tool only reads the API "shell"):
+
+* **"Find Java and Python lambda expressions used within methods"**
+  *(The indexer only parses class and method signatures. The inner code/body of a method is ignored, hence no inline lambdas are found.)*
+* **"Add logging to all database connection functions"**
+  *(Read-only tool, cannot write or modify code.)*
+* **"Refactor the User class to use dependency injection"**
+  *(Read-only tool, cannot refactor code.)*
+* **"Convert these Python functions to async/await pattern"**
+  *(Read-only tool, cannot convert code.)*
+* **"Add error handling to authentication methods"**
+  *(Read-only tool, cannot write code.)*
+* **"Optimize this function for better performance"**
+  *(Read-only tool, does not perform performance analysis or optimization.)*
+
+---
+
+## 6. Role in the AI-Assisted Software Development Life Cycle (AI-SDLC)
+
+The limitations of the `code_indexer` regarding partially or unsupported queries are mostly *by-design*. The tool is built to be a purely static **navigation and discovery tool** (the "map") for the AI. It forms a perfect symbiosis with the cognitive capabilities of an LLM:
+
+* **Discovery Phase (Missing Semantics/Type Graphs):** Since the indexer lacks semantic understanding, the AI must work iteratively (e.g., filtering for `persistence` packages when looking for database operations). Missing type inheritance graphs are compensated by the AI querying specific interface method names.
+* **Debugging & Deep-Dives (No Body/Lambdas):** The indexer deliberately provides the AI with only the API shell and the *exact line numbers*. This protects the context window. To understand lambdas or fix bugs, the AI subsequently uses file-reading tools to load exactly that line range.
+* **Implementation & Refactoring (Read-Only):** The indexer acts as the "eyes" of the AI. It intentionally does not modify code. The AI acts as the "hands" using its own write tools to refactor or write code at the coordinates identified by the indexer.
+* **Performance Optimization:** Profiling is dynamic, whereas the indexer is static. The AI merely uses the indexer to quickly locate functions in the codebase after an external performance analysis.

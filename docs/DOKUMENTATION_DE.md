@@ -93,3 +93,58 @@ Finde alle Setup-Funktionen in den Modulen, die das Wort "test" beinhalten:
 ```bash
 python skills/code-indexer/index_python_methods.py --pkg *test* --func setup* .
 ```
+
+---
+
+## 5. Unterstützte Abfragen & Fähigkeiten
+
+Um ein besseres Verständnis für die Leistungsfähigkeit des `code_indexer` zu bekommen, sind hier gängige Abfragen aufgelistet und bewertet, inwiefern das Tool diese direkt beantworten kann. Der Indexer fokussiert sich auf **Java** und **Python**.
+
+### ✅ Vollständig unterstützt (Direkt beantwortbar)
+Diese Abfragen lassen sich mit dem `code_indexer` problemlos über die Namens- und Strukturfilter beantworten:
+
+* **"Show me all classes that contain 'user' in their name"**
+* **"What methods does the User class have?"**
+* **"List all Java packages and Python modules with their classes"**
+* **"Find Java and Python classes and their methods"**
+* **"Find all Python magic methods (operator overloads) in the Matrix class"**
+* **"List all Java packages / Python modules and their contained classes"**
+
+### ⚠️ Teilweise unterstützt (Eingeschränkt oder Workaround nötig)
+Bei diesen Fragen stößt das Tool an funktionale Grenzen (fehlende Semantik oder fehlende komplexe Typ-Graphen):
+
+* **"Find functions related to database operations"**
+  *(Kein inhaltliches Verständnis. Man kann nur nach Schlüsselwörtern im Methodennamen suchen, z. B. `--func db`.)*
+* **"Show me functions that handle authentication"**
+  *(Gleicher Grund wie oben. Nur stringbasierte Suche nach z. B. `--func auth` ist möglich.)*
+* **"Show me Java interfaces and their implementations"**
+  *(Interfaces und Klassen werden zwar indiziert, das Tool weiß aber nicht automatisch, welche Klasse welches Interface implementiert. Es fehlt der Vererbungs-Graph.)*
+* **"Show me Java generic methods with their type bounds"**
+  *(Methodensignaturen werden erfasst, aber komplexe `<T>` Generics und Type-Bounds werden nicht separat für Filter aufbereitet.)*
+
+### ❌ Nicht unterstützt (Nicht beantwortbar)
+Diese Abfragen sind unmöglich, da sie Änderungen am Code verlangen (das Tool liest nur) oder den Rumpf einer Methode betreffen (das Tool liest nur die "Hülle"):
+
+* **"Find Java and Python lambda expressions used within methods"**
+  *(Der Indexer parst nur die Klassen- und Methoden-Signaturen. Der innere Code/Rumpf einer Methode wird ignoriert, daher werden keine Lambdas gefunden.)*
+* **"Add logging to all database connection functions"**
+  *(Werkzeug ist rein lesend, kann keinen Code schreiben.)*
+* **"Refactor the User class to use dependency injection"**
+  *(Werkzeug ist rein lesend, kann keinen Code ändern.)*
+* **"Convert these Python functions to async/await pattern"**
+  *(Werkzeug ist rein lesend, kann keinen Code ändern.)*
+* **"Add error handling to authentication methods"**
+  *(Werkzeug ist rein lesend, kann keinen Code schreiben.)*
+* **"Optimize this function for better performance"**
+  *(Werkzeug ist rein lesend und führt keine Performance-Analysen durch.)*
+
+---
+
+## 6. Einordnung im KI-gestützten Softwareentwicklungszyklus (AI-SDLC)
+
+Die Limitierungen des `code_indexer` bei teilweise oder nicht unterstützten Abfragen sind überwiegend *By-Design*. Das Tool ist als rein statisches **Navigations- und Discovery-Werkzeug** (die "Landkarte") für die KI konzipiert. Es schließt sich perfekt mit den kognitiven Fähigkeiten eines LLMs zusammen:
+
+* **Discovery-Phase (Fehlende Semantik/Typ-Graphen):** Da der Indexer keine Semantik versteht, muss die KI iterativ arbeiten (z.B. grob nach `persistence` Paketen filtern, wenn sie Datenbank-Operationen sucht). Fehlende Typ-Graphen werden kompensiert, indem die KI gezielt nach Methodennamen sucht.
+* **Debugging & Deep-Dives (Kein Rumpf/Lambdas):** Der Indexer liefert der KI absichtlich nur die API-Hülle und die *exakten Zeilennummern*. Dies schützt das Kontextfenster. Für das tiefe Verständnis von Lambdas oder Bug-Fixes nutzt die KI im Anschluss Datei-Lese-Tools, um exakt diesen Zeilenbereich zu laden.
+* **Implementierung & Refactoring (Nur Lesen):** Der Indexer ist das "Auge" der KI. Er verändert bewusst keinen Code. Die KI fungiert als "Hand" und nutzt eigene Schreib-Tools, um den Code an den vom Indexer identifizierten Koordinaten anzupassen.
+* **Performance-Optimierung:** Profiling ist dynamisch, der Indexer statisch. Die KI nutzt den Indexer lediglich, um nach einer externen Performance-Analyse die betroffenen Funktionen im Code schnell wiederzufinden.
