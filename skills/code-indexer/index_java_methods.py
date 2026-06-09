@@ -119,11 +119,24 @@ def to_uri(path):
 def find_java_files(root):
     ignore = {".git", "target", "build", ".idea", ".gradle", ".mvn"}
     result = []
-    for current, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ignore]
-        for name in files:
-            if name.endswith(".java"):
-                result.append(os.path.join(current, name))
+
+    def _scan(directory):
+        try:
+            with os.scandir(directory) as it:
+                for entry in it:
+                    if entry.is_dir(follow_symlinks=False):
+                        if entry.name not in ignore:
+                            _scan(entry.path)
+                    elif entry.is_file(follow_symlinks=False) and entry.name.endswith(".java"):
+                        try:
+                            mtime = entry.stat().st_mtime
+                            result.append((entry.path, mtime))
+                        except OSError:
+                            pass
+        except PermissionError:
+            pass
+
+    _scan(root)
     return result
 
 
@@ -575,8 +588,7 @@ def main():
     new_cache = {}
     client = None
 
-    for path in files:
-        mtime = os.path.getmtime(path)
+    for path, mtime in files:
         cached_entry = cache.get(path)
         if (
             cached_entry
